@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy New Year, AYA</title>
+
+<style>
+:root{
+  --pink:#ff4d88;
+  --purple:#7c4dff;
+  --bg:#fff0f6;
+  --card:rgba(255,255,255,.9);
+  --ink:#2b1b23;
+  --muted:#6a3a52;
+}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background:
+    radial-gradient(circle at top left,#ffe3ee,transparent 60%),
+    radial-gradient(circle at bottom right,#e7ddff,transparent 60%),
+    var(--bg);
+  color:var(--ink);
+  display:flex;
+  justify-content:center;
+  overflow-x:hidden;
+}
+
+/* Floating hearts + flowers */
+.float-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+}
+.floaty{
+  position:absolute;
+  bottom:-40px;
+  opacity:.4;
+  animation: rise linear forwards;
+}
+@keyframes rise{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-120vh)}
+}
+
+.wrap{
+  width:100%;
+  max-width:900px;
+  padding:30px 18px 90px;
+  position:relative;
+  z-index:2;
+}
+
+.card{
+  background:var(--card);
+  border-radius:22px;
+  padding:28px;
+  box-shadow:0 20px 45px rgba(0,0,0,.12);
+  text-align:center;
+}
+
+.hidden{display:none}
+
+h1{font-size:clamp(26px,4vw,38px)}
+h2{color:var(--muted)}
+p{line-height:1.7}
+
+input{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  font-size:16px;
+  width:240px;
+  text-align:center;
+}
+
+button{
+  margin-top:18px;
+  padding:12px 20px;
+  border-radius:14px;
+  border:none;
+  font-weight:700;
+  color:white;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  cursor:pointer;
+}
+
+.month{
+  font-size:52px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+/* Envelope */
+.envelope{
+  width:320px;
+  margin:20px auto;
+  cursor:pointer;
+}
+.env-body{
+  position:relative;
+  height:170px;
+  background:white;
+  border-radius:18px;
+  box-shadow:0 16px 35px rgba(0,0,0,.14);
+  overflow:hidden;
+}
+.flap{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:90px;
+  background:linear-gradient(135deg,#ffd1e1,#e5dcff);
+  clip-path: polygon(0 0, 100% 0, 50% 70%);
+  transform-origin:top;
+  transition:.6s;
+}
+.paper{
+  position:absolute;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:85%;
+  background:white;
+  border-radius:14px;
+  padding:14px;
+  opacity:0;
+  transition:.6s;
+}
+.envelope.open .flap{transform:rotateX(180deg)}
+.envelope.open .paper{opacity:1}
+
+.typed{
+  white-space:pre-wrap;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+<div class="float-layer" id="floatLayer"></div>
+
+<div class="wrap">
+
+<!-- PAGE 1: PASSCODE -->
+<section class="card" id="pass">
+  <h1>Just one little thing…</h1>
+  <h2>AYA, enter your birthday</h2>
+  <p>DD/MM/YYYY</p>
+  <input id="date" placeholder="10/10/2007">
+  <br>
+  <button id="unlockBtn">Unlock</button>
+  <p id="err" style="color:#b0003a;display:none">Wrong date 🤍</p>
+</section>
+
+<!-- PAGE 2: MONTHS -->
+<section class="card hidden" id="months">
+  <h2>Let me walk through my year…</h2>
+  <div class="month" id="month">January</div>
+</section>
+
+<!-- PAGE 3: AUGUST -->
+<section class="card hidden" id="august">
+  <h1>August</h1>
+  <h2>The month that changed everything</h2>
+  <p>
+    That’s when I met you.<br>
+    And somehow, you made my year brighter.
+  </p>
+  <button id="nextBtn">Next</button>
+</section>
+
+<!-- PAGE 4: NEW YEAR -->
+<section class="card hidden" id="ny">
+  <h1>Happy New Year, AYA ✨</h1>
+  <p>
+    Thank you for being part of my year.<br>
+    You mean more to me than I can explain.
+  </p>
+
+  <div class="envelope" id="envelope">
+    <div class="env-body">
+      <div class="flap"></div>
+      <div class="paper">
+        <div class="typed" id="typed"></div>
+      </div>
+    </div>
+    <p style="font-size:13px">Tap to open the envelope</p>
+  </div>
+
+  <button id="byeBtn">Goodbye</button>
+</section>
+
+<!-- PAGE 5: GOODBYE -->
+<section class="card hidden" id="bye">
+  <h1>Goodbye</h1>
+  <p>
+    Take care, AYA 🤍<br>
+    I hope this year is gentle with you.
+  </p>
+</section>
+
+</div>
+
+<script>
+/* Floating hearts + flowers */
+const emojis=["💗","💖","💞","🌸","🌷","🌹","💐"];
+setInterval(()=>{
+  const e=document.createElement("div");
+  e.className="floaty";
+  e.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+  e.style.left=Math.random()*100+"vw";
+  e.style.fontSize=(14+Math.random()*18)+"px";
+  e.style.animationDuration=(6+Math.random()*6)+"s";
+  floatLayer.appendChild(e);
+  setTimeout(()=>e.remove(),12000);
+},300);
+
+/* Passcode */
+const CORRECT="10/10/2007";
+unlockBtn.onclick=()=>{
+  if(date.value.trim()!==CORRECT){
+    err.style.display="block";
+    return;
+  }
+  pass.classList.add("hidden");
+  months.classList.remove("hidden");
+
+  const list=["January","February","March","April","May","June","July","August"];
+  let i=0;
+  const t=setInterval(()=>{
+    month.textContent=list[i];
+    if(i===7){
+      clearInterval(t);
+      setTimeout(()=>{
+        months.classList.add("hidden");
+        august.classList.remove("hidden");
+      },600);
+    }
+    i++;
+  },600);
+};
+
+/* Flow */
+nextBtn.onclick=()=>{
+  august.classList.add("hidden");
+  ny.classList.remove("hidden");
+};
+
+/* Letter */
+const letter=[
+  "AYA,",
+  "",
+  "I hope this little surprise makes you smile.",
+  "You truly mean a lot to me.",
+  "",
+  "I love you, no matter what.",
+  "Even if we’re not together,",
+  "my feelings remain sincere.",
+  "",
+  "Right now, I really wish I was with you.",
+  "",
+  "Happy New Year 🤍"
+];
+
+envelope.onclick=()=>{
+  envelope.classList.add("open");
+  let text=letter.join("\n");
+  let i=0;
+  const t=setInterval(()=>{
+    typed.textContent=text.slice(0,i++);
+    if(i>text.length) clearInterval(t);
+  },22);
+};
+
+byeBtn.onclick=()=>{
+  ny.classList.add("hidden");
+  bye.classList.remove("hidden");
+};
+</script>
+</body>
+</html>
